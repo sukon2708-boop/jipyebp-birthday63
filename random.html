@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>วงล้อตามใจ</title>
+
+
+<!-- Font -->
+<link href="https://fonts.googleapis.com/css2?family=Fahkwang:wght@500;700&display=swap" rel="stylesheet">
+
+<!-- jQuery -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+
+body{
+  background:linear-gradient(180deg,#fde2e6,#f8bfc8);
+  font-family:'Fahkwang',sans-serif;
+  height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  overflow:hidden;
+}
+
+/* WRAPPER */
+#wrapper{
+  width:280px;
+  text-align:center;
+}
+
+/* TITLE */
+h1{
+  font-size:26px;
+  font-weight:700;
+  color:#fb6f92;
+  margin-bottom:20px;
+}
+
+/* RESULT */
+#result{
+  margin-top:16px;
+  font-size:20px;
+  font-weight:700;
+  color:#fff;
+  background:linear-gradient(135deg,#fb6f92,#ff9db4);
+  padding:12px 16px;
+  border-radius:18px;
+  display:none;
+  box-shadow:0 10px 25px rgba(251,111,146,.45);
+}
+
+/* ---------- WHEEL (ปรับขนาด) ---------- */
+#wheel{
+  width:320px;       /* เพิ่มจาก 250px */
+  height:320px;      /* เพิ่มจาก 250px */
+  margin:0 auto;
+  border-radius:50%;
+  position:relative;
+  overflow:hidden;
+  border:10px solid #fff;  /* ปรับขอบให้สมดุล */
+  box-shadow:0 25px 50px rgba(251,111,146,.45);
+}
+
+#wheel:before{
+  content:''; 
+  position:absolute; 
+  inset:8px; 
+  border-radius:50%; 
+  border:3px solid rgba(255,255,255,.4);
+  z-index:10;
+}
+
+#inner-wheel{
+  width:100%;
+  height:100%;
+  transition:transform 6s cubic-bezier(0,.99,.44,.99);
+}
+
+/* SECTIONS (ปรับให้ใหญ่เท่ากับวงล้อ) */
+#wheel .sec{
+  position:absolute;
+  width:0;
+  height:0;
+  border-style:solid;
+  border-width:165px 95px 0;   /* เพิ่มขนาด */
+  transform-origin:95px 164px; /* ปรับ origin ให้ตรงกับ border */
+  left:60px;                   /* ปรับให้อยู่กลางวงล้อ */
+  top:-5px;
+}
+
+.sec:nth-child(1){transform:rotate(60deg);border-color:#fb6f92 transparent;}
+.sec:nth-child(2){transform:rotate(120deg);border-color:#ff8fab transparent;}
+.sec:nth-child(3){transform:rotate(180deg);border-color:#f15f88 transparent;}
+.sec:nth-child(4){transform:rotate(240deg);border-color:#ffb3c6 transparent;}
+.sec:nth-child(5){transform:rotate(300deg);border-color:#ff9db4 transparent;}
+.sec:nth-child(6){transform:rotate(360deg);border-color:#e6527d transparent;}
+
+.sec span{
+  position:relative;
+  top:-120px;   /* เลื่อนให้อยู่กลางสามเหลี่ยม */
+  left:-45px;
+  width:90px;
+  display:block;
+  font-size:16px;  /* ตัวอักษรใหญ่ขึ้น */
+  font-weight:700;
+  color:#fff;
+  text-align:center;
+}
+
+/* SPIN BUTTON */
+#spin{
+  width:70px;
+  height:70px;
+  border-radius:50%;
+  background:#fff;
+  position:absolute;
+  top:50%;
+  left:50%;
+  transform:translate(-50%,-50%);
+  z-index:20;
+  cursor:pointer;
+  box-shadow:0 8px 20px rgba(251,111,146,.4);
+}
+
+#spin:after{
+  content:"หมุน";
+  line-height:70px;
+  font-weight:700;
+  color:#fb6f92;
+  display:block;
+}
+
+#spin:before{
+  content:"";
+  position:absolute;
+  top:-14px;
+  left:15px;
+  border-style:solid;
+  border-width:0 20px 26px 20px;
+  border-color:transparent transparent #fff transparent;
+}
+
+/* BUTTON */
+.btn-group{
+  margin-top:26px;
+}
+
+.back-btn{
+    font-family: 'Fahkwang', sans-serif;
+  background:transparent;
+  border:2px solid #fb6f92;
+  color:#fb6f92;
+  padding:12px 34px;
+  border-radius:30px;
+  font-size:15px;
+  font-weight:600;
+  cursor:pointer;
+}
+
+.back-btn:hover{
+  background:#fb6f92;
+  color:#fff;
+}
+
+/* CONFETTI */
+.confetti{
+  position:fixed;
+  top:-10px;
+  width:10px;
+  height:10px;
+  background:hotpink;
+  animation:fall 2.2s linear forwards;
+}
+
+@keyframes fall{
+  to{
+    transform:translateY(110vh) rotate(720deg);
+    opacity:0;
+  }
+}
+
+/* ===============================
+   MOBILE FIX (ADD ONLY)
+   =============================== */
+
+/* ให้ความสูงอิงจอมือถือจริง */
+body{
+  min-height: 100svh;
+  padding: 16px;
+  box-sizing: border-box;
+}
+
+/* จำกัดความกว้างเหมือนทุกหน้า */
+body > *{
+  max-width: 420px;
+}
+
+/* ซองจดหมายปรับขนาดอัตโนมัติในมือถือ */
+@media (max-width: 400px){
+  .envelope{
+    transform: scale(0.88);
+  }
+}
+
+/* จอเตี้ย (มือถือเล็ก / iPhone SE) */
+@media (max-height: 680px){
+  .envelope{
+    transform: scale(0.8);
+  }
+
+  .btn-group{
+     margin-top:35px;
+  display:flex;
+  gap:18px;
+  opacity:0;
+  transform:translateY(12px);
+  transition:.4s ease;
+  }
+}
+
+/* ป้องกันซูมเกินจอเวลาขยายจดหมาย */
+.envelope__letter.zoom{
+  max-height: 75svh;
+}
+
+/* ===============================
+   MOBILE SIZE FIX (ADD ONLY)
+   =============================== */
+
+/* ใช้ความสูงจอมือถือจริง */
+body{
+  min-height: 100svh;
+}
+
+/* กันเนื้อหาชิดขอบและป้องกันซูมแปลก */
+body{
+  padding-left: 16px;
+  padding-right: 16px;
+  box-sizing: border-box;
+}
+
+/* ป้องกันหน้าเว็บกว้างเกินจอ */
+html{
+  overflow-x: hidden;
+}
+
+</style>
+</head>
+
+<body>
+
+<div id="wrapper">
+
+  <h1>วงล้อตามใจ</h1>
+
+<div id="wheel"> 
+  <div id="inner-wheel"> 
+    <div class="sec"><span>swensens 🍦</span></div> 
+    <div class="sec"><span>หมาล่า 🍢</span></div> 
+    <div class="sec"><span>ชาบู 🥘</span></div> 
+    <div class="sec"><span>KFC 🍗</span></div> 
+    <div class="sec"><span>มาม่า 🍜 (ยาดาทำให้)</span></div> 
+    <div class="sec"><span>ดีนเลือก ✌🏼</span></div> 
+  </div> 
+  <div id="spin"></div> 
+</div>
+  <div id="result"></div>
+
+  <div class="btn-group">
+    <button class="back-btn" onclick="history.back()">ย้อนกลับ</button>
+  </div>
+
+</div>
+
+<script>
+const items = [
+
+  "swensens 🍦",
+  "หมาล่า 🍢",
+  "ชาบู 🥘",
+  "KFC 🍗",
+  "มาม่า 🍜 (ยาดาทำให้)",
+  "ดีนเลือก ✌🏼"
+
+];
+
+let spinning = false;
+
+$('#spin').on('click', function(){ 
+  if(spinning) return; 
+  spinning = true; 
+
+  $('#result').hide(); 
+
+  const extra = Math.floor(Math.random() * 360); 
+  const rotate = 1800 + extra; 
+
+  $('#inner-wheel').css('transform','rotate(' + rotate + 'deg)'); 
+
+  setTimeout(() => { 
+
+    const index = (
+      Math.floor((360 - (extra % 360)) / 60) - 1 + items.length
+    ) % items.length;
+
+    $('#result')
+      .text("คุณได้: " + items[index])
+      .fadeIn(); 
+
+    firework(); 
+    spinning = false; 
+
+  }, 6000); 
+});
+
+function firework(){
+  for(let i=0;i<60;i++){
+    const c = document.createElement('div');
+    c.className = 'confetti';
+    c.style.left = Math.random()*100 + 'vw';
+    c.style.background = `hsl(${Math.random()*360},80%,65%)`;
+    c.style.animationDuration = (1.5 + Math.random()) + 's';
+    document.body.appendChild(c);
+    setTimeout(()=>c.remove(),2500);
+  }
+}
+</script>
+
+</body>
+</html>
